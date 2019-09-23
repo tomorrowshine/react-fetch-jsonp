@@ -27,7 +27,7 @@ function removeScript(scriptId) {
 
 // 定义三个数组：分别存放请求timeout定时器，resolve对象，回调函数名
 const timeoutIds = [];
-const resolves = [];
+const resolves = {};
 const callIds = [];
 
 function fetchJsonp(_url, options = {}) {
@@ -43,11 +43,16 @@ function fetchJsonp(_url, options = {}) {
         const scriptId = `${jsonpCallback}_${callbackFunction}`;
 
         callIds.push(callbackFunction);
-        resolves.push(resolve);
+        if (!resolves[callbackFunction]) {
+            resolves[callbackFunction] = [resolve];
+        } else {
+            resolves[callbackFunction].push(resolve);
+        }
 
         window[callbackFunction] = (response) => {
+
             callIds.shift();
-            resolves.shift()({
+            resolves[callbackFunction].shift()({
                 ok: true,
                 // keep consistent with fetch API
                 json: () => Promise.resolve(response),
@@ -58,6 +63,8 @@ function fetchJsonp(_url, options = {}) {
             removeScript(scriptId);
             // 相同函数名执行完毕后清除
             if (callIds.indexOf(callbackFunction) === -1) {
+                delete resolves[callbackFunction];
+
                 clearFunction(callbackFunction);
             }
         };

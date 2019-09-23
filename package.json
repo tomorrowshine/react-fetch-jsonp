@@ -1,6 +1,6 @@
 {
   "name": "react-fetch-jsonp",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "react-fetch-jsonp 对fetch-jsonp的改写，支持相同回调函数名同时发送多个请求",
   "main": "index.js",
   "scripts": {
